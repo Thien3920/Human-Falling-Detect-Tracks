@@ -16,15 +16,15 @@ import pandas as pd
 import numpy as np
 import torchvision.transforms as transforms
 
-from Track.DetectorLoader import TinyYOLOv3_onecls
+from DetectorLoader import TinyYOLOv3_onecls
 from PoseEstimateLoader import SPPE_FastPose
 from fn import vis_frame_fast
 
 save_path = '../../Data/Home-pose+score.csv'
 
-annot_file = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Home_new.csv'  # from create_dataset_1.py
-video_folder = '../Data/falldata'
-annot_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/falldata/annot.csv'  # bounding box annotation for each frame.
+annot_file = '../Data/Home_new.csv'  # from create_dataset_1.py
+video_folder = '../Data/falldata/Home/Video/'
+annotation_folder = '../Data/falldata/Home/Annotation_files'  # bounding box annotation for each frame.
 
 # DETECTION MODEL.
 detector = TinyYOLOv3_onecls()
@@ -67,14 +67,14 @@ for vid in vid_list:
                   int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
     # Bounding Boxs Labels.
-    annot_file = os.path.join(annot_folder, vid.split('.')[0], '.txt')
-    annot = None
+    annotation_file = os.path.join(annotation_folder, vid.split('.')[0] + '.txt')
+    annotation = None
     if os.path.exists(annot_file):
-        annot = pd.read_csv(annot_file, header=None,
+        annotation = pd.read_csv(annotation_file, header=None,
                                   names=['frame_idx', 'class', 'xmin', 'ymin', 'xmax', 'ymax'])
-        annot = annot.dropna().reset_index(drop=True)
+        annotation = annotation.dropna().reset_index(drop=True)
 
-        assert frames_count == len(annot), 'frame count not equal! {} and {}'.format(frames_count, len(annot))
+        assert frames_count == len(annotation), 'frame count not equal! {} and {}'.format(frames_count, len(annotation))
 
     fps_time = 0
     i = 1
@@ -84,8 +84,8 @@ for vid in vid_list:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             cls_idx = int(frames_label[frames_label['frame'] == i]['label'])
 
-            if annot:
-                bb = np.array(annot.iloc[i-1, 2:].astype(int))
+            if annotation:
+                bb = np.array(annotation.iloc[i-1, 2:].astype(int))
             else:
                 bb = detector.detect(frame)[0, :4].numpy().astype(int)
             bb[:2] = np.maximum(0, bb[:2] - 5)

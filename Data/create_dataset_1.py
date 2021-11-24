@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
                'Stand up', 'Sit down', 'Fall Down']  # label.
 
-video_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/falldata/Home/video'
-annot_file = '../Data/Home_new.csv'
+video_folder = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Video'
+annot_file = 'Data/Home_new.csv'
 
 index_video_to_play = 0 # Choose video to play.
 

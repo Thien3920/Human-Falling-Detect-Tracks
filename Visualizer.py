@@ -137,7 +137,7 @@ def plot_confusion_metrix(y_true, y_pred, labels=None, title='', normalize=None,
                           fig_size=(10, 10), save=None):
     cm = confusion_matrix(y_true, y_pred, normalize=normalize)
     if labels is None:
-        labels = list(set(y_trues))
+        labels = list(set(y_true))
 
     disp = ConfusionMatrixDisplay(cm, labels)
     disp.plot(xticks_rotation=45)

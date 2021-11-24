@@ -1,0 +1,4 @@
+Data/falldata/
+Models/
+Data/*.csv
+Data/*.pkl

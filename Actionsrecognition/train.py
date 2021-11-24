@@ -32,10 +32,10 @@ batch_size = 32
 #   channels: Inputs data (x, y and scores), Default: 3
 #   num_class: Number of pose class to train, Default: 7
 
-data_files = ['/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Coffee_room_new-set(labelXscrw).pkl','/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Coffee_room_new-set(labelXscrw).pkl']
+data_files = ['../Data/Coffee_room_new-set(labelXscrw).pkl',
+              '../Data/Home_new-set(labelXscrw).pkl']
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
                'Stand up', 'Sit down', 'Fall Down']
-class_names=['ta_chi','clean_and_jerk']
 num_class = len(class_names)
 
 

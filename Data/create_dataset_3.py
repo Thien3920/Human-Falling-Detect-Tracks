@@ -9,13 +9,14 @@ import numpy as np
 import pandas as pd
 
 
-class_names = ['standing','falldown']               
+class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
+               'Stand up', 'Sit down', 'Fall Down']
 main_parts = ['LShoulder_x', 'LShoulder_y', 'RShoulder_x', 'RShoulder_y', 'LHip_x', 'LHip_y',
               'RHip_x', 'RHip_y']
 main_idx_parts = [1, 2, 7, 8, -1]  # 1.5
 
-csv_pose_file = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/pose_score.csv'
-save_path = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/train.pkl'
+csv_pose_file = '../Data/Home_new.csv'
+save_path = '../Data/train.pkl'
 
 # Params.
 smooth_labels_step = 8
