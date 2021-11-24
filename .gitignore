@@ -1,0 +1,9 @@
+videos/*
+Models/sppe/fast_res50_256x192.pth
+Models/sppe/fast_res101_320x256.pth
+Models/TSSTG/tsstg-model.pth
+Models/yolo-tiny-onecls/best-model.pth
+Data/train.pkl
+Data/pose_and_score.csv
+Data/Home_new.csv
+
