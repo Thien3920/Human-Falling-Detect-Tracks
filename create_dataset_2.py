@@ -68,15 +68,15 @@ for vid in vid_list:
                   int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
     # Bounding Boxs Labels.
-    annot_file = os.path.join(annot_folder,vid.split('.')[0])
-    annot_file=annot_file+'.csv'
-    annot = None
-    if os.path.exists(annot_file):
-        annot = pd.read_csv(annot_file, header=None,
+    annot_file_2 = os.path.join(annot_folder,vid.split('.')[0])
+    annot_file_2=annot_file_2+'.csv'
+    annot_2 = None
+    if os.path.exists(annot_file_2):
+        annot_2 = pd.read_csv(annot_file_2, header=None,
                                   names=['frame_idx', 'class', 'xmin', 'ymin', 'xmax', 'ymax'])
-        annot = annot.dropna().reset_index(drop=True)
+        annot_2 = annot_2.dropna().reset_index(drop=True)
 
-        assert frames_count == len(annot), 'frame count not equal! {} and {}'.format(frames_count, len(annot))
+        assert frames_count == len(annot_2), 'frame count not equal! {} and {}'.format(frames_count, len(annot_2))
 
     fps_time = 0
     i = 1
@@ -85,8 +85,8 @@ for vid in vid_list:
         if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             cls_idx = int(frames_label[frames_label['frame'] == i]['label'])
-            if annot:
-                bb = np.array(annot.iloc[i-1, 2:].astype(int))
+            if annot_2:
+                bb = np.array(annot_2.iloc[i-1, 2:].astype(int))
             else:
 
                 bb = detector.detect(frame)
@@ -145,4 +145,4 @@ for vid in vid_list:
         df.to_csv(save_path, mode='a', header=False, index=False)
     else:
         df.to_csv(save_path, mode='w', index=False)
-
+ 

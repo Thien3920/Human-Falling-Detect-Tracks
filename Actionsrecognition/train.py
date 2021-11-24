@@ -17,7 +17,7 @@ from Visualizer import plot_graphs, plot_confusion_metrix
 save_folder = 'saved/TSSTG(pts+mot)-01(cf+hm-hm)'
 
 device = 'cuda'
-epochs = 30
+epochs = 1
 batch_size = 32
 
 # DATA FILES.
@@ -32,10 +32,8 @@ batch_size = 32
 #   channels: Inputs data (x, y and scores), Default: 3
 #   num_class: Number of pose class to train, Default: 7
 
-data_files = ['/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Coffee_room_new-set(labelXscrw).pkl','/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Coffee_room_new-set(labelXscrw).pkl']
-class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
-               'Stand up', 'Sit down', 'Fall Down']
-class_names=['ta_chi','clean_and_jerk']
+data_files = ['/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/train.pkl','/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/train.pkl']
+class_names = ['standing', 'falldown']
 num_class = len(class_names)
 
 
@@ -207,10 +205,11 @@ if __name__ == '__main__':
 
     run_loss = run_loss / len(iterator)
     run_accu = run_accu / len(iterator)
-
+    '''
     plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu{:.4f}'.format(
         os.path.basename(data_file), run_loss, run_accu
     ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
         os.path.basename(data_file).split('.')[0])))
+    '''
 
     print('Eval Loss: {:.4f}, Accu: {:.4f}'.format(run_loss, run_accu))
