@@ -14,8 +14,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
-               'Stand up', 'Sit down', 'Fall Down']  # label.
+class_names = ['Walking', 'Fall Down']  # label.
 
 video_folder = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Video'
 annot_file = 'Data/Home_new.csv'
@@ -25,6 +24,7 @@ index_video_to_play = 0 # Choose video to play.
 
 def create_csv(folder):
     list_file = sorted(os.listdir(folder))
+    class_names_file = [s.lower() for s in class_names]
     cols = ['video', 'frame', 'label']
     df = pd.DataFrame(columns=cols)
     for fil in list_file:
@@ -32,7 +32,9 @@ def create_csv(folder):
         frames_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         video = np.array([fil] * frames_count)
         frame = np.arange(1, frames_count + 1)
-        label = np.array([0] * frames_count)
+        name = fil.split('.')[0]
+        label_idx = class_names_file.index(name.lower().split('_')[0]) #Walking_1
+        label = np.array([label_idx] * frames_count)
         rows = np.stack([video, frame, label], axis=1)
         df = df.append(pd.DataFrame(rows, columns=cols),
                        ignore_index=True)

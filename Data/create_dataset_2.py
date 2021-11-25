@@ -87,7 +87,12 @@ for vid in vid_list:
             if annotation:
                 bb = np.array(annotation.iloc[i-1, 2:].astype(int))
             else:
-                bb = detector.detect(frame)[0, :4].numpy().astype(int)
+                bb = detector.detect(frame)
+                if bb is None:
+                    bb = torch.tensor([[0, 0, 0, 0, 1.0000, 1.0000, 0.0000]])
+                    bb = bb[0, :4].numpy().astype(int)
+                else:
+                    bb = bb[0, :4].numpy().astype(int)
             bb[:2] = np.maximum(0, bb[:2] - 5)
             bb[2:] = np.minimum(frame_size, bb[2:] + 5) if bb[2:].any() != 0 else bb[2:]
 

@@ -34,8 +34,7 @@ batch_size = 32
 
 data_files = ['../Data/Coffee_room_new-set(labelXscrw).pkl',
               '../Data/Home_new-set(labelXscrw).pkl']
-class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
-               'Stand up', 'Sit down', 'Fall Down']
+class_names = ['Walking', 'Fall Down']
 num_class = len(class_names)
 
 
