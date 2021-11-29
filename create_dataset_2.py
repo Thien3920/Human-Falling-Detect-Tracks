@@ -22,9 +22,9 @@ from fn import vis_frame_fast
 from DetectorLoader import TinyYOLOv3_onecls
 save_path = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/pose_and_score.csv'
 
-annot_file = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Home_new.csv'  # from create_dataset_1.py
+annot_file = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Home_new_2.csv'  # from create_dataset_1.py
 video_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/videos'
-annot_folder = '' #'/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/falldata/Home/Annotation_files'  # bounding box annotation for each frame.
+annot_folder = ''
 
 # DETECTION MODEL.
 detector = TinyYOLOv3_onecls()
@@ -34,6 +34,7 @@ inp_h = 320
 inp_w = 256
 pose_estimator = SPPE_FastPose('resnet50', 'resnet50')
 
+class_names = ['Standing','Fall Down']  # label.
 # with score.
 columns = ['video', 'frame', 'Nose_x', 'Nose_y', 'Nose_s', 'LShoulder_x', 'LShoulder_y', 'LShoulder_s',
            'RShoulder_x', 'RShoulder_y', 'RShoulder_s', 'LElbow_x', 'LElbow_y', 'LElbow_s', 'RElbow_x',
@@ -124,14 +125,17 @@ for vid in vid_list:
             cur_row += 1
 
             #  VISUALIZE.
-            #frame = vis_frame_fast(frame, result)
+            frame = vis_frame_fast(frame, result)
             frame = cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 255, 0), 2)
-            frame = cv2.putText(frame, 'Frame: {}, Pose: {}, Score: {:.4f}'.format(i, cls_idx, scr),
+            frame = cv2.putText(frame,'Frame:{}'.format(i),
                                 (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+            frame = cv2.putText(frame, 'Pose:{}, Score:{:.4f}'.format( class_names[cls_idx], scr),
+                                (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             frame = frame[:, :, ::-1]
             fps_time = time.time()
             i += 1
-
+            frame = cv2.resize(frame, (0, 0), fx=4, fy=4)
             cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -145,4 +149,4 @@ for vid in vid_list:
         df.to_csv(save_path, mode='a', header=False, index=False)
     else:
         df.to_csv(save_path, mode='w', index=False)
- 
+

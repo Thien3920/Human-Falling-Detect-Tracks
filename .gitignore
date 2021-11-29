@@ -5,5 +5,7 @@ Models/TSSTG/tsstg-model.pth
 Models/yolo-tiny-onecls/best-model.pth
 Data/train.pkl
 Data/pose_and_score.csv
+Data/pose_and_score_2.csv
 Data/Home_new.csv
-
+videos/*
+video_test/*

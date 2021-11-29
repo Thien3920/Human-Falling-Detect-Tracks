@@ -159,7 +159,7 @@ def vis_frame_fast(frame, im_res, joint_format='coco'):
             if start_p in part_line and end_p in part_line:
                 start_xy = part_line[start_p]
                 end_xy = part_line[end_p]
-                cv2.line(img, start_xy, end_xy, line_color[i], 2*(kp_scores[start_p] + kp_scores[end_p]) + 1)
+                cv2.line(img, start_xy, end_xy, line_color[i], int(2*(kp_scores[start_p] + kp_scores[end_p]) + 1))
     return img
 
 

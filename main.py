@@ -15,11 +15,12 @@ from fn import draw_single
 from Track.Tracker import Detection, Tracker
 from ActionsEstLoader import TSSTG
 
-#source = '../Data/test_video/test7.mp4'
+
 #source = '../Data/falldata/Home/Videos/video (2).avi'  # hard detect
 #source = 'https://minio.core.greenlabs.ai/clover/fall_detection/fall_detection1.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20211112%2F%2Fs3%2Faws4_request&X-Amz-Date=20211112T094305Z&X-Amz-Expires=432000&X-Amz-SignedHeaders=host&X-Amz-Signature=dc1343f19c7739db2e974aaf33a72edbd5fe08bab79b0866d5884dc92f3ff39a'
-source = '0'
+#source = '0'
 
+source = '/home/thien/Desktop/Human-Falling-Detect-Tracks/video_test/test_2.avi'
 
 def preproc(image):
     """preprocess function for CameraLoader.
@@ -151,9 +152,9 @@ if __name__ == '__main__':
                 out = action_model.predict(pts, frame.shape[:2])
                 action_name = action_model.class_names[out[0].argmax()]
                 action = '{}: {:.2f}%'.format(action_name, out[0].max() * 100)
-                if action_name == 'Fall Down':
+                if action_name == 'falldown':
                     clr = (255, 0, 0)
-                elif action_name == 'Lying Down':
+                elif action_name == 'standing':
                     clr = (255, 200, 0)
 
             # VISUALIZE.
