@@ -14,6 +14,7 @@ import time
 import torch
 import pandas as pd
 import numpy as np
+
 import torchvision.transforms as transforms
 
 #from Track.DetectorLoader import TinyYOLOv3_onecls
@@ -34,7 +35,8 @@ inp_h = 320
 inp_w = 256
 pose_estimator = SPPE_FastPose('resnet50', 'resnet50')
 
-class_names = ['Standing','Fall Down']  # label.
+class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
+
 # with score.
 columns = ['video', 'frame', 'Nose_x', 'Nose_y', 'Nose_s', 'LShoulder_x', 'LShoulder_y', 'LShoulder_s',
            'RShoulder_x', 'RShoulder_y', 'RShoulder_s', 'LElbow_x', 'LElbow_y', 'LElbow_s', 'RElbow_x',

@@ -20,7 +20,8 @@ from ActionsEstLoader import TSSTG
 #source = 'https://minio.core.greenlabs.ai/clover/fall_detection/fall_detection1.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20211112%2F%2Fs3%2Faws4_request&X-Amz-Date=20211112T094305Z&X-Amz-Expires=432000&X-Amz-SignedHeaders=host&X-Amz-Signature=dc1343f19c7739db2e974aaf33a72edbd5fe08bab79b0866d5884dc92f3ff39a'
 #source = '0'
 
-source = '/home/thien/Desktop/Human-Falling-Detect-Tracks/video_test/test_2.avi'
+
+source ='/home/thien/Desktop/Human-Falling-Detect-Tracks/video_test/video (3).avi'
 
 def preproc(image):
     """preprocess function for CameraLoader.
