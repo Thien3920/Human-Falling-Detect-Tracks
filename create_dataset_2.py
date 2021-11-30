@@ -1,6 +1,5 @@
 """
 This script to extract skeleton joints position and score.
-
 - This 'annot_folder' is a action class and bounding box for each frames that came with dataset.
     Should be in format of [frame_idx, action_cls, xmin, ymin, xmax, ymax]
         Use for crop a person to use in pose estimation model.
@@ -15,17 +14,20 @@ import torch
 import pandas as pd
 import numpy as np
 
-import torchvision.transforms as transforms
 
-#from Track.DetectorLoader import TinyYOLOv3_onecls
+from DetectorLoader import TinyYOLOv3_onecls
 from PoseEstimateLoader import SPPE_FastPose
 from fn import vis_frame_fast
-from DetectorLoader import TinyYOLOv3_onecls
+
 save_path = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/pose_and_score.csv'
 
 annot_file = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Home_new_2.csv'  # from create_dataset_1.py
 video_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/videos'
-annot_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/annot'
+annot_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/annot'  # bounding box annotation for each frame.
+
+
+
+
 
 # DETECTION MODEL.
 detector = TinyYOLOv3_onecls()
@@ -34,9 +36,7 @@ detector = TinyYOLOv3_onecls()
 inp_h = 320
 inp_w = 256
 pose_estimator = SPPE_FastPose('resnet101', 'resnet101')
-
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
-
 # with score.
 columns = ['video', 'frame', 'Nose_x', 'Nose_y', 'Nose_s', 'LShoulder_x', 'LShoulder_y', 'LShoulder_s',
            'RShoulder_x', 'RShoulder_y', 'RShoulder_s', 'LElbow_x', 'LElbow_y', 'LElbow_s', 'RElbow_x',
@@ -56,24 +56,23 @@ def normalize_points_with_size(points_xy, width, height, flip=False):
 
 annot = pd.read_csv(annot_file)
 vid_list = annot['video'].unique()
-print(vid_list)
 for vid in vid_list:
     print(f'Process on: {vid}')
     df = pd.DataFrame(columns=columns)
     cur_row = 0
+
     # Pose Labels.
     frames_label = annot[annot['video'] == vid].reset_index(drop=True)
-    videos_path=os.path.join(video_folder, vid)
-    cap = cv2.VideoCapture(videos_path)
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    cap = cv2.VideoCapture(os.path.join(video_folder, vid))
     frames_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
                   int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
     # Bounding Boxs Labels.
-    annot_file_2 = os.path.join(annot_folder,vid.split('.')[0])
-    #annot_file_2=annot_file_2+'.csv'
-    annot_2 = None
+    annot_file_2 = os.path.join(annot_folder, vid.split('.')[0])
+    annot_file_2=annot_file_2+'.txt'
+    annot_2 = []
     if os.path.exists(annot_file_2):
         annot_2 = pd.read_csv(annot_file_2, header=None,
                                   names=['frame_idx', 'class', 'xmin', 'ymin', 'xmax', 'ymax'])
@@ -88,20 +87,16 @@ for vid in vid_list:
         if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             cls_idx = int(frames_label[frames_label['frame'] == i]['label'])
-            if annot_2 != None:
+
+            if len(annot_2):
                 bb = np.array(annot_2.iloc[i-1, 2:].astype(int))
             else:
-
                 bb = detector.detect(frame)
-                if bb==None:
-                    bb=torch.tensor([[0, 0, 0, 0, 0.9330, 1.0000, 0.0000]])
+                if bb == None:
+                    bb = torch.tensor([[0, 0, 0, 0, 0.9330, 1.0000, 0.0000]])
                     bb = bb[0, :4].numpy().astype(int)
                 else:
                     bb = bb[0, :4].numpy().astype(int)
-
-
-
-
             bb[:2] = np.maximum(0, bb[:2] - 5)
             bb[2:] = np.minimum(frame_size, bb[2:] + 5) if bb[2:].any() != 0 else bb[2:]
 
@@ -126,30 +121,32 @@ for vid in vid_list:
             df.loc[cur_row] = row
             cur_row += 1
 
-            #  VISUALIZE.
+            # VISUALIZE.
             frame = vis_frame_fast(frame, result)
-            frame = cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 255, 0), 2)
-            frame = cv2.putText(frame,'Frame:{}'.format(i),
-                                (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            frame = cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (125, 255,255 ), 2)
+            frame = cv2.putText(frame,vid+'   Frame:' +str(i),
+                                (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255,0 ), 2)
+            frame = cv2.putText(frame, 'Pose: {}, Score: {:.4f}'.format( class_names[cls_idx], scr),
+                                (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255,0), 2)
+            if not len(annot_2):
+                frame = cv2.putText(frame, 'No annotation',
+                                    (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-            frame = cv2.putText(frame, 'Pose:{}, Score:{:.4f}'.format( class_names[cls_idx], scr),
-                                (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             frame = frame[:, :, ::-1]
             fps_time = time.time()
             i += 1
-            frame = cv2.resize(frame, (0, 0), fx=4, fy=4)
+
+            frame = cv2.resize(frame, (0, 0), fx=2, fy=2)
             cv2.imshow('frame', frame)
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'):
+            key =cv2.waitKey(1)
+            if key & 0xFF == ord('q'):
                 break
-            elif key == ord('p'):
-                key = cv2.waitKey(0) & 0xFF
-                if key == ord('p'):
-                    continue
-
-
+            elif key & 0xFF == ord('p'):
+                key =cv2.waitKey(0)
+                if key & 0xFF == ord('q'):
+                    break
         else:
-             break
+            break
 
     cap.release()
     cv2.destroyAllWindows()
@@ -158,4 +155,3 @@ for vid in vid_list:
         df.to_csv(save_path, mode='a', header=False, index=False)
     else:
         df.to_csv(save_path, mode='w', index=False)
-
