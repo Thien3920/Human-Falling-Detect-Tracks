@@ -74,10 +74,17 @@ for index_video_to_play in range(len(video_list)):
 
             frame = cv2.resize(frame, (0, 0), fx=3, fy=3)
             frame = cv2.putText(frame, 'Video: {}     Total_frames: {}        Frame: {}       Pose: {} '.format(video_list[index_video_to_play],frames_count,i+1, cls_name,),
-                                (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-            #frame = cv2.putText(frame, '  Pose: {} '.format(video_list[index_video_to_play], frames_count, i + 1, cls_name, ),
-             #                   (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            frame = cv2.putText(frame, 'Back:  a',(10, 270), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+            frame = cv2.putText(frame,'Standing:   0', (10, 300),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            frame = cv2.putText(frame,'Walking:    1', (10, 330),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            frame = cv2.putText(frame,'Sitting:    2', (10, 360),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            frame = cv2.putText(frame,'Lying Down: 3', (10, 390),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            frame = cv2.putText(frame,'Stand Up:   4', (10, 420),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            frame = cv2.putText(frame,'Sit Down:   5', (10, 450),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            frame = cv2.putText(frame,'Fall Down:  6', (10, 480),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
             cv2.imshow('frame', frame)
 
