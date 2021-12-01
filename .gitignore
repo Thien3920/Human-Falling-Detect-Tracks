@@ -1,4 +1,5 @@
-Data/falldata/
-Models/
+Data/falldata/Home/Annotation_files/*
+Data/falldata/Home/Video/*
+Models/*
 Data/*.csv
 Data/*.pkl

@@ -14,7 +14,6 @@ import time
 import torch
 import pandas as pd
 import numpy as np
-import torchvision.transforms as transforms
 
 from DetectorLoader import TinyYOLOv3_onecls
 from PoseEstimateLoader import SPPE_FastPose
@@ -33,7 +32,7 @@ detector = TinyYOLOv3_onecls()
 inp_h = 320
 inp_w = 256
 pose_estimator = SPPE_FastPose(inp_h, inp_w)
-
+class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
 # with score.
 columns = ['video', 'frame', 'Nose_x', 'Nose_y', 'Nose_s', 'LShoulder_x', 'LShoulder_y', 'LShoulder_s',
            'RShoulder_x', 'RShoulder_y', 'RShoulder_s', 'LElbow_x', 'LElbow_y', 'LElbow_s', 'RElbow_x',
@@ -69,7 +68,7 @@ for vid in vid_list:
     # Bounding Boxs Labels.
     annotation_file = os.path.join(annotation_folder, vid.split('.')[0] + '.txt')
     annotation = None
-    if os.path.exists(annot_file):
+    if os.path.exists(annotation_file):
         annotation = pd.read_csv(annotation_file, header=None,
                                   names=['frame_idx', 'class', 'xmin', 'ymin', 'xmax', 'ymax'])
         annotation = annotation.dropna().reset_index(drop=True)
@@ -120,15 +119,27 @@ for vid in vid_list:
             # VISUALIZE.
             frame = vis_frame_fast(frame, result)
             frame = cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 255, 0), 2)
-            frame = cv2.putText(frame, 'Frame: {}, Pose: {}, Score: {:.4f}'.format(i, cls_idx, scr),
-                                (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            frame = cv2.putText(frame, vid + '   Frame:' + str(i),
+                                (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+            frame = cv2.putText(frame, 'Pose: {}, Score: {:.4f}'.format(class_names[cls_idx], scr),
+                                (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+
+            if not len(annotation_file):
+                frame = cv2.putText(frame, 'No annotation',
+                                    (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
             frame = frame[:, :, ::-1]
             fps_time = time.time()
             i += 1
 
             cv2.imshow('frame', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            key = cv2.waitKey(1)
+            if key & 0xFF == ord('q'):
                 break
+            elif key & 0xFF == ord('p'):
+                key = cv2.waitKey(0)
+                if key & 0xFF == ord('q'):
+                    break
         else:
             break
 
