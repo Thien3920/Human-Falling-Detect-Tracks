@@ -1,7 +1,6 @@
 import shutil
 from glob import glob
 
-
 video_folder_source = '/home/minhhuy/Downloads/Home_01/Videos'
 video_folder_destination = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Video'
 annotation_folder_source = '/home/minhhuy/Downloads/Home_01/Annotation_files'
@@ -18,6 +17,7 @@ def getStart():
 
 pathVideo = glob(video_folder_source + '/*')
 pathVideo.sort()
+
 pathAnnot = glob(annotation_folder_source + '/*')
 pathAnnot.sort()
 
@@ -29,7 +29,8 @@ else:
 for i in range(len(pathVideo)):
     codec = pathVideo[i].split('/')[-1].split('.')[-1]
     newNameVideo = video_folder_destination + '/' + 'video' + '({})'.format(start) + '.{}'.format(codec)
-    newNameAnnot = annotation_folder_destination + '/' + 'video' + '({})'.format(start) + '.txt'
     shutil.copy(pathVideo[i], newNameVideo)
-    shutil.copy(pathAnnot[i], newNameAnnot)
+    if len(pathAnnot):
+        newNameAnnot = annotation_folder_destination + '/' + 'video' + '({})'.format(start) + '.txt'
+        shutil.copy(pathAnnot[i], newNameAnnot)
     start += 1
