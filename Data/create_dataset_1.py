@@ -18,50 +18,24 @@ video_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/videos'
 annot_file = '../Data/Home_new.csv'
 annot_file_2 = '../Data/Home_new_2.csv'
 
-def create_csv(folder):
-    list_file = sorted(os.listdir(folder))
-    cols = ['video', 'frame', 'label']
-    df = pd.DataFrame(columns=cols)
-    for fil in list_file:
-        cap = cv2.VideoCapture(os.path.join(folder, fil))
-        frames_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        video = np.array([fil] * frames_count)
-        frame = np.arange(1, frames_count + 1)
-        label = np.array([0] * frames_count)
-        rows = np.stack([video, frame, label], axis=1)
-        df = df.append(pd.DataFrame(rows, columns=cols),
-                       ignore_index=True)
-        cap.release()
-    df.to_csv(annot_file, index=False)
 
-
-if not os.path.exists(annot_file):
-    create_csv(video_folder)
-
-annot = pd.read_csv(annot_file)
-video_list = annot.iloc[:, 0].unique()
-
+video_list = sorted(os.listdir(video_folder))
 cols = ['video', 'frame', 'label']
 df = pd.DataFrame(columns=cols)
 
+
 for index_video_to_play in range(len(video_list)):
+
     video_file = os.path.join(video_folder, video_list[index_video_to_play])
     print(os.path.basename(video_file))
 
-    annot_2 = annot[annot['video'] == video_list[index_video_to_play]].reset_index(drop=True)
-    frames_idx = annot_2.iloc[:, 1].tolist()
-
     cap = cv2.VideoCapture(video_file)
     frames_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    assert frames_count == len(frames_idx), 'frame count not equal! {} and {}'.format( len(frames_idx), frames_count)
-
-    k=0
     video = np.array([video_list[index_video_to_play]] * frames_count)
     frame_1 = np.arange(1, frames_count + 1)
     label = np.array([0] * frames_count)
 
-
+    k = 0
     i = 0
     while True:
         cap.set(cv2.CAP_PROP_POS_FRAMES, i)
@@ -75,8 +49,8 @@ for index_video_to_play in range(len(video_list)):
             frame = cv2.putText(frame, 'Video: {}     Total_frames: {}        Frame: {}       Pose: {} '.format(video_list[index_video_to_play],frames_count,i+1, cls_name,),
                                 (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
+            #Show button list
             frame = cv2.putText(frame, 'Back:  a',(10, 270), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
             frame = cv2.putText(frame,'Standing:   0', (10, 300),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
             frame = cv2.putText(frame,'Walking:    1', (10, 330),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
             frame = cv2.putText(frame,'Sitting:    2', (10, 360),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
@@ -86,8 +60,8 @@ for index_video_to_play in range(len(video_list)):
             frame = cv2.putText(frame,'Fall Down:  6', (10, 480),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
             cv2.imshow('frame', frame)
-
             key = cv2.waitKey(0) & 0xFF
+
             if key == ord('q'):
                 break
             elif key == ord('0'): #standing
