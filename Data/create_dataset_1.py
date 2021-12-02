@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
 
 video_folder = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Video'
-annot_file = 'Data/Home_new.csv'
+annot_file = '../Data/Home_new.csv'
 annot_file_2 = '../Data/Home_new_2.csv'
 
 
@@ -47,7 +47,11 @@ video_list = annot.iloc[:, 0].unique()
 
 cols = ['video', 'frame', 'label']
 df = pd.DataFrame(columns=cols)
-for index_video_to_play in range(len(video_list)):
+
+index_video_to_play = 0
+backVideo = False
+step = 0
+while index_video_to_play < len(video_list):
     video_file = os.path.join(video_folder, video_list[index_video_to_play])
     print(os.path.basename(video_file))
 
@@ -60,21 +64,26 @@ for index_video_to_play in range(len(video_list)):
     assert frames_count == len(frames_idx), 'frame count not equal! {} and {}'.format(
         len(frames_idx), frames_count)
 
-    k = 0
     video = np.array([video_list[index_video_to_play]] * frames_count)
     frame_1 = np.arange(1, frames_count + 1)
     label = np.array([0] * frames_count)
-
+    if backVideo is True and step == 1:
+        step = 2
+    k = 0
     i = 0
+    ipre = -1
     while True:
         cap.set(cv2.CAP_PROP_POS_FRAMES, i)
         ret, frame = cap.read()
+        if i > ipre and i > 0:
+            label[i - 1] = k
+            ipre = i
         if ret:
-            cls_name = class_names[int(annot.iloc[i, -1]) - 1]
-            frame = cv2.resize(frame, (0, 0), fx=3, fy=3)
+            cls_name = class_names[label[i - 1]]
+            frame = cv2.resize(frame, (0, 0), fx=3.5, fy=3.5)
             frame = cv2.putText(frame, 'Video: {}     Total_frames: {}        Frame: {}       Pose: {} '.format(
-                video_list[index_video_to_play], frames_count, i + 1, cls_name, ),
-                                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                video_list[index_video_to_play], frames_count, i + 1, cls_name),
+                                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 0, 0), 2)
 
             frame = cv2.putText(frame, 'Back:  a', (10, 270), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             frame = cv2.putText(frame, 'Standing:   0', (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
@@ -118,10 +127,26 @@ for index_video_to_play in range(len(video_list)):
             elif key == ord('a'):  # back
                 i -= 1
                 continue
+            elif key == ord('b'):  # back video
+                backVideo = True
+                step = 1
+                index_video_to_play -= 1
+                break
         else:
             break
-    rows = np.stack([video, frame_1, label], axis=1)
-    df = df.append(pd.DataFrame(rows, columns=cols), ignore_index=True)
+    if backVideo == False:
+        rows = np.stack([video, frame_1, label], axis=1)
+        df = df.append(pd.DataFrame(rows, columns=cols), ignore_index=True)
+        print(len(df))
+        index_video_to_play += 1
+    elif backVideo is True and step == 2:
+        rows = np.stack([video, frame_1, label], axis=1)
+        df.iloc[len(df)-frames_count:len(df), :] = rows
+        print(len(df))
+        index_video_to_play += 1
+        backVideo = False
+        step = 0
+
 df.to_csv(annot_file_2, index=False)
 cap.release()
 cv2.destroyAllWindows()
