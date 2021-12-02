@@ -15,10 +15,10 @@ class TSSTG(object):
     #./Models/TSSTG/tsstg-model.pth
    #/home/thien/Desktop/Human-Falling-Detect-Tracks/Actionsrecognition/saved/TSSTG(pts+mot)-01(cf+hm-hm)/tsstg-model.pth
     def __init__(self,
-                 weight_file='./Models/TSSTG/tsstg-model_frame.pth',
+                 weight_file='./Models/TSSTG/tsstg-model.pth',
                  device='cuda'):
         self.graph_args = {'strategy': 'spatial'}
-        self.class_names = ['standing','falldown']
+        self.class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
         self.num_class = len(self.class_names)
         self.device = device
 

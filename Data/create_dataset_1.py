@@ -13,7 +13,6 @@ import pandas as pd
 
 
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
-#class_names = ['Standing','Fall Down']  # label.
 
 video_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/videos'
 annot_file = '../Data/Home_new.csv'
@@ -120,6 +119,8 @@ for index_video_to_play in range(len(video_list)):
             elif key == ord('a'):#back
                 i -= 1
                 continue
+            elif key == ord('q'):#quit
+                break
         else:
             break
     rows = np.stack([video, frame_1, label], axis=1)
