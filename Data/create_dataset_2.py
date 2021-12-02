@@ -22,7 +22,7 @@ from fn import vis_frame_fast
 save_path = '../../Data/Home-pose+score.csv'
 
 annot_file = '../Data/Home_new.csv'  # from create_dataset_1.py
-video_folder = '../Data/falldata/Home/Video/'
+video_folder = '../Data/falldata/Home/Videos/'
 annotation_folder = '../Data/falldata/Home/Annotation_files'  # bounding box annotation for each frame.
 
 # DETECTION MODEL.

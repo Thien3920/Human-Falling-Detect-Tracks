@@ -2,7 +2,7 @@ import shutil
 from glob import glob
 
 video_folder_source = '/home/minhhuy/Downloads/Home_01/Videos'
-video_folder_destination = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Video'
+video_folder_destination = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Videos'
 annotation_folder_source = '/home/minhhuy/Downloads/Home_01/Annotation_files'
 annotation_folder_destination = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Annotation_files'
 

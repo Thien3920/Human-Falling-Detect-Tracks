@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 #class_names = ['Walking', 'Fall Down']  # label.
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
 
-video_folder = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Video'
+video_folder = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Videos'
 annot_file = '../Data/Home_new.csv'
 annot_file_2 = '../Data/Home_new_2.csv'
 
@@ -81,7 +81,7 @@ while index_video_to_play < len(video_list):
         if ret:
             cls_name = class_names[label[i - 1]]
             frame = cv2.resize(frame, (0, 0), fx=3.5, fy=3.5)
-            frame = cv2.putText(frame, 'Video: {}     Total_frames: {}        Frame: {}       Pose: {} '.format(
+            frame = cv2.putText(frame, 'Videos: {}     Total_frames: {}        Frame: {}       Pose: {} '.format(
                 video_list[index_video_to_play], frames_count, i + 1, cls_name),
                                 (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 0, 0), 2)
 
