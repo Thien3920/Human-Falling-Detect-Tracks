@@ -71,7 +71,7 @@ while index_video_to_play < len(video_list):
         step = 2
     k = 0
     i = 0
-    ipre = -1
+    ipre = - 1
     while True:
         cap.set(cv2.CAP_PROP_POS_FRAMES, i)
         ret, frame = cap.read()
@@ -137,12 +137,10 @@ while index_video_to_play < len(video_list):
     if backVideo == False:
         rows = np.stack([video, frame_1, label], axis=1)
         df = df.append(pd.DataFrame(rows, columns=cols), ignore_index=True)
-        print(len(df))
         index_video_to_play += 1
     elif backVideo is True and step == 2:
         rows = np.stack([video, frame_1, label], axis=1)
         df.iloc[len(df)-frames_count:len(df), :] = rows
-        print(len(df))
         index_video_to_play += 1
         backVideo = False
         step = 0

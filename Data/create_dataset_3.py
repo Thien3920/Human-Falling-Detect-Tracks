@@ -9,12 +9,11 @@ import numpy as np
 import pandas as pd
 
 
-class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
+class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down', 'Stand up', 'Sit down', 'Fall Down']
 main_parts = ['LShoulder_x', 'LShoulder_y', 'RShoulder_x', 'RShoulder_y', 'LHip_x', 'LHip_y',
               'RHip_x', 'RHip_y']
 main_idx_parts = [1, 2, 7, 8, -1]  # 1.5
-
-csv_pose_file = '../Data/Home_new.csv'
+csv_pose_file = '../Data/AllStep2.csv'
 save_path = '../Data/train.pkl'
 
 # Params.
@@ -30,9 +29,10 @@ idx = np.where(idx)[0]
 annot = annot.drop(idx)
 # One-Hot Labels.
 label_onehot = pd.get_dummies(annot['label'])
-annot = annot.drop('label', axis=1).join(label_onehot)
+annot = annot.drop('label', axis=1).join(label_onehot)  # annot = [video, frame, 13, label(1 0 0 0 0 0 0)]  ...x48
 cols = label_onehot.columns.values
 
+# df = pd.DataFrame()
 
 def scale_pose(xy):
     """
@@ -81,6 +81,7 @@ vid_list = annot['video'].unique()
 for vid in vid_list:
     print(f'Process on: {vid}')
     data = annot[annot['video'] == vid].reset_index(drop=True).drop(columns='video')
+    # data = [frame, 13, label(binary)] ...x47
 
     # Label Smoothing.
     esp = 0.1
@@ -100,15 +101,16 @@ for vid in vid_list:
     frames_set.append(fs)
 
     for fs in frames_set:
-        xys = data.iloc[fs, 1:-len(cols)].values.reshape(-1, 13, 3)
+        xys = data.iloc[fs, 1:-len(cols)]  # xys = [13]
+        xys = xys.values.reshape(-1, 13, 3)  # xys = [[[1], [2], [3],....,[13]].....]
         # Scale pose normalize.
-        xys[:, :, :2] = scale_pose(xys[:, :, :2])
+        xys[:, :, :2] = scale_pose(xys[:, :, :2])  # x and y
         # Add center point.
         xys = np.concatenate((xys, np.expand_dims((xys[:, 1, :] + xys[:, 2, :]) / 2, 1)), axis=1)
 
         # Weighting main parts score.
         scr = xys[:, :, -1].copy()
-        scr[:, main_idx_parts] = np.minimum(scr[:, main_idx_parts] * 1.5, 1.0)
+        scr[:, main_idx_parts] = np.minimum(scr[:, main_idx_parts] * 1.5, 1.0)  #
         # Mean score.
         scr = scr.mean(1)
 
@@ -117,10 +119,16 @@ for vid in vid_list:
         # Apply points score mean to all labels.
         lb = lb * scr[:, None]
 
-        for i in range(xys.shape[0] - n_frames):
+        for i in range(xys.shape[0] - n_frames):  # xys > n_frames = 30
             feature_set = np.append(feature_set, xys[i:i+n_frames][None, ...], axis=0)
             labels_set = np.append(labels_set, lb[i:i+n_frames].mean(0)[None, ...], axis=0)
 
 
     with open(save_path, 'wb') as f:
         pickle.dump((feature_set, labels_set), f)
+
+#     name = np.array([vid] * labels_set.shape[0]).reshape(-1, 1)
+#     labels = np.append(name, labels_set, axis=1)
+#     col = ['video'].append(cols)
+#     df = df.append(pd.DataFrame(labels, columns=col))
+# df.to_csv('/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/test.csv', mode='w', index=False)
