@@ -21,7 +21,7 @@ from fn import vis_frame_fast
 
 save_path = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/pose_and_score.csv'
 
-annot_file = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Home_new_2.csv'  # from create_dataset_1.py
+annot_file = '/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/Home_new.csv'  # from create_dataset_1.py
 video_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/videos'
 annot_folder = '/home/thien/Desktop/Human-Falling-Detect-Tracks/annot'  # bounding box annotation for each frame.
 
