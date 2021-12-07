@@ -32,7 +32,8 @@ label_onehot = pd.get_dummies(annot['label'])
 annot = annot.drop('label', axis=1).join(label_onehot)  # annot = [video, frame, 13, label(1 0 0 0 0 0 0)]  ...x48
 cols = label_onehot.columns.values
 
-# df = pd.DataFrame()
+# col = ['video'].append(cols)
+# df = pd.DataFrame(columns=col)
 
 def scale_pose(xy):
     """
@@ -129,6 +130,5 @@ for vid in vid_list:
 
 #     name = np.array([vid] * labels_set.shape[0]).reshape(-1, 1)
 #     labels = np.append(name, labels_set, axis=1)
-#     col = ['video'].append(cols)
 #     df = df.append(pd.DataFrame(labels, columns=col))
 # df.to_csv('/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/test.csv', mode='w', index=False)

@@ -22,7 +22,7 @@ columns = ['video', 'frame', 'Nose_x', 'Nose_y', 'Nose_s', 'LShoulder_x', 'LShou
            'RAnkle_s', 'label']
 
 df = pd.DataFrame(columns=columns)
-stat = 1
+start = 1
 currentVid = None
 for path in Path:
     print('Processing on: ' + os.path.basename(path))
@@ -32,8 +32,8 @@ for path in Path:
     setVid = video.unique()
     video = np.array(video)
     for i in setVid:
-        video = np.where(video == i, 'video'+str(stat), video)
-        stat += 1
+        video = np.where(video == i, 'video'+str(start), video)
+        start += 1
     df2['video'] = video
     df = df.append(df2, ignore_index=True)
 df.to_csv(savePath, mode='w', index=False)
