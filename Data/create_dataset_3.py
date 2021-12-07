@@ -4,6 +4,7 @@ This script to create dataset and labels by clean off some NaN, do a normalizati
 label smoothing and label weights by scores.
 """
 import os
+import matplotlib.pyplot as plt
 import pickle
 import numpy as np
 import pandas as pd
@@ -74,12 +75,43 @@ def seq_label_smoothing(labels, max_step=10):
             active_label = np.argmax(labels[i])
     return labels
 
+def plot_total_label(labels_set,cols):
+    # label with labels_set max
+    label =np.argmax(labels_set,axis=1)
+
+    #find index in cols for class_names: ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
+    label_idx=[]  # tìm
+    cols=list(cols)
+    for i in range (len(class_names )):
+        if i not in cols:
+            label_idx.append(None)
+        else:
+            label_idx.append(cols.index(i))
+
+    #calculate total number of frames for each class
+    values=np.zeros((len(class_names),),dtype=int)
+    for i in range(len(values)):
+        values[i]=sum(label==label_idx[i])
+
+    #plot total number frames for each class
+    names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
+    n= list(np.arange(len(names)))
+    plt.figure(figsize=(20,25))
+    plt.bar(names, values)
+    plt.title('total number of labels')
+    plt.xlabel('classes')
+    plt.ylabel("total labels")
+    for i in range(len(values)):
+        plt.annotate(str(values[i]), xy=(n[i],values[i]), ha='center', va='bottom')
+    plt.show()
+
 
 feature_set = np.empty((0, n_frames, 14, 3))
 labels_set = np.empty((0, len(cols)))
 vid_list = annot['video'].unique()
 for vid in vid_list:
     print(f'Process on: {vid}')
+
     data = annot[annot['video'] == vid].reset_index(drop=True).drop(columns='video')
 
     # Label Smoothing.
@@ -103,14 +135,14 @@ for vid in vid_list:
         xys = data.iloc[fs, 1:-len(cols)].values.reshape(-1, 13, 3)
         # Scale pose normalize.
         xys[:, :, :2] = scale_pose(xys[:, :, :2])
-        # Add center point.
+        # Add center point.           # (L_shoulder + R_shoulder)/2
         xys = np.concatenate((xys, np.expand_dims((xys[:, 1, :] + xys[:, 2, :]) / 2, 1)), axis=1)
 
         # Weighting main parts score.
         scr = xys[:, :, -1].copy()
-        scr[:, main_idx_parts] = np.minimum(scr[:, main_idx_parts] * 1.5, 1.0)
+        scr[:, main_idx_parts] = np.minimum(scr[:, main_idx_parts] * 1.5, 1.0)   # ??
         # Mean score.
-        scr = scr.mean(1)
+        scr = scr.mean(1) # score trung binh cho moi frame
 
         # Targets.
         lb = data.iloc[fs, -len(cols):].values
@@ -118,9 +150,11 @@ for vid in vid_list:
         lb = lb * scr[:, None]
 
         for i in range(xys.shape[0] - n_frames):
-            feature_set = np.append(feature_set, xys[i:i+n_frames][None, ...], axis=0)
-            labels_set = np.append(labels_set, lb[i:i+n_frames].mean(0)[None, ...], axis=0)
-
+            feature_set = np.append(feature_set, xys[i:i+n_frames][None, ...], axis=0) # each feature is  30 frames
+            labels_set = np.append(labels_set, lb[i:i+n_frames].mean(0)[None, ...], axis=0) # label = mean(30 frames)
 
     with open(save_path, 'wb') as f:
         pickle.dump((feature_set, labels_set), f)
+
+plot_total_label(labels_set,cols)
+
