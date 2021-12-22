@@ -139,7 +139,7 @@ def plot_confusion_metrix(y_true, y_pred, labels=None, title='', normalize=None,
     if labels is None:
         labels = list(set(y_true))
 
-    disp = ConfusionMatrixDisplay(cm, labels)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
     disp.plot(xticks_rotation=45)
     disp.figure_.set_size_inches(fig_size)
     disp.figure_.suptitle(title)

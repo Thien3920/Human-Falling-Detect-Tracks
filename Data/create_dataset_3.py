@@ -3,11 +3,12 @@
 This script to create dataset and labels by clean off some NaN, do a normalization,
 label smoothing and label weights by scores.
 """
-import os
 import pickle
 import numpy as np
 import pandas as pd
-
+from collections import Counter
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down', 'Stand up', 'Sit down', 'Fall Down']
 main_parts = ['LShoulder_x', 'LShoulder_y', 'RShoulder_x', 'RShoulder_y', 'LHip_x', 'LHip_y',
@@ -30,10 +31,8 @@ annot = annot.drop(idx)
 # One-Hot Labels.
 label_onehot = pd.get_dummies(annot['label'])
 annot = annot.drop('label', axis=1).join(label_onehot)  # annot = [video, frame, 13, label(1 0 0 0 0 0 0)]  ...x48
-cols = label_onehot.columns.values
+cols = label_onehot.columns.values  # cols = [0, 1, 2, 3, 4, 5, 6]
 
-# col = ['video'].append(cols)
-# df = pd.DataFrame(columns=col)
 
 def scale_pose(xy):
     """
@@ -76,13 +75,28 @@ def seq_label_smoothing(labels, max_step=10):
     return labels
 
 
+def graphSample(labels):
+    class_num = np.zeros(7)
+    labels = labels.argmax(axis=1)
+    s = Counter(labels)
+    for i in s:
+        class_num[i] = s[i]
+    idx_class = range(7)
+    plt.bar(idx_class, class_num)
+    plt.xticks(idx_class, class_names)
+
+    for x, y in zip(idx_class, class_num):
+        plt.text(x + 0.02, y + 0.05, '%d' % y, ha='center', va='bottom')
+    plt.savefig('../Data/graph.jpg')
+    plt.show()
+
+
 feature_set = np.empty((0, n_frames, 14, 3))
 labels_set = np.empty((0, len(cols)))
 vid_list = annot['video'].unique()
 for vid in vid_list:
     print(f'Process on: {vid}')
-    data = annot[annot['video'] == vid].reset_index(drop=True).drop(columns='video')
-    # data = [frame, 13, label(binary)] ...x47
+    data = annot[annot['video'] == vid].reset_index(drop=True).drop(columns='video')  # data = [frame, 13, label(binary)] ...x47
 
     # Label Smoothing.
     esp = 0.1
@@ -103,15 +117,18 @@ for vid in vid_list:
 
     for fs in frames_set:
         xys = data.iloc[fs, 1:-len(cols)]  # xys = [13]
-        xys = xys.values.reshape(-1, 13, 3)  # xys = [[[1], [2], [3],....,[13]].....]
+        xys = xys.values.reshape(-1, 13, 3)  # xys = [[[1], [2], [3],....,[13]],.....]
         # Scale pose normalize.
         xys[:, :, :2] = scale_pose(xys[:, :, :2])  # x and y
         # Add center point.
         xys = np.concatenate((xys, np.expand_dims((xys[:, 1, :] + xys[:, 2, :]) / 2, 1)), axis=1)
+        # xys = [[[1], [2], [3],....,[13], [center point]],.....]
 
         # Weighting main parts score.
         scr = xys[:, :, -1].copy()
-        scr[:, main_idx_parts] = np.minimum(scr[:, main_idx_parts] * 1.5, 1.0)  #
+        scr[:, main_idx_parts] = np.minimum(scr[:, main_idx_parts] * 1.5, 1.0)  # [1, 2, 7, 8, -1]
+        # ['LShoulder_s', 'RShoulder_s', 'LHip_s', 'RHip_s', 'center point']
+
         # Mean score.
         scr = scr.mean(1)
 
@@ -124,11 +141,13 @@ for vid in vid_list:
             feature_set = np.append(feature_set, xys[i:i+n_frames][None, ...], axis=0)
             labels_set = np.append(labels_set, lb[i:i+n_frames].mean(0)[None, ...], axis=0)
 
+    # with open(save_path, 'wb') as f:
+    #     pickle.dump((feature_set, labels_set), f)
+xtrain, xtest,ytrain, ytest = train_test_split(feature_set, labels_set, train_size=0.7)
+with open('../Data/train07.pkl', 'wb') as f:
+    pickle.dump((xtrain, ytrain), f)
+with open('../Data/test03.pkl', 'wb') as f:
+    pickle.dump((xtest, ytest), f)
+graphSample(labels_set)
 
-    with open(save_path, 'wb') as f:
-        pickle.dump((feature_set, labels_set), f)
 
-#     name = np.array([vid] * labels_set.shape[0]).reshape(-1, 1)
-#     labels = np.append(name, labels_set, axis=1)
-#     df = df.append(pd.DataFrame(labels, columns=col))
-# df.to_csv('/home/thien/Desktop/Human-Falling-Detect-Tracks/Data/test.csv', mode='w', index=False)

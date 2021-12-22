@@ -32,8 +32,8 @@ batch_size = 32
 #   channels: Inputs data (x, y and scores), Default: 3
 #   num_class: Number of pose class to train, Default: 7
 
-data_files = ['../Data/Coffee_room_new-set(labelXscrw).pkl',
-              '../Data/Home_new-set(labelXscrw).pkl']
+data_files = ['../Data/train07.pkl',
+              '../Data/test03.pkl']
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down', 'Stand up', 'Sit down', 'Fall Down']
 num_class = len(class_names)
 
@@ -85,13 +85,13 @@ if __name__ == '__main__':
         os.makedirs(save_folder)
 
     # DATA.
-    train_loader, _ = load_dataset(data_files[0:1], batch_size)
-    valid_loader, train_loader_ = load_dataset(data_files[1:2], batch_size, 0.5)
+    # train_loader, _ = load_dataset(data_files[0:1], batch_size)
+    train_loader, valid_loader = load_dataset(data_files[0:1], batch_size, 0.1)
 
-    train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
-                                   batch_size, shuffle=True)
+    # train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
+    #                                batch_size, shuffle=True)
     dataloader = {'train': train_loader, 'valid': valid_loader}
-    del train_loader_
+    # del train_loader_
 
     # MODEL.
     graph_args = {'strategy': 'spatial'}

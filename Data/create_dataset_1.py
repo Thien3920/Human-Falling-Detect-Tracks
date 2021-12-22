@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-#class_names = ['Walking', 'Fall Down']  # label.
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down','Stand up', 'Sit down', 'Fall Down']
 
 video_folder = '/home/minhhuy/Desktop/Python/Human-Falling-Detect-Tracks/Data/falldata/Home/Videos'
@@ -148,3 +147,5 @@ while index_video_to_play < len(video_list):
 df.to_csv(annot_file_2, index=False)
 cap.release()
 cv2.destroyAllWindows()
+
+

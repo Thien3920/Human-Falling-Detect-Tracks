@@ -50,7 +50,7 @@ def normalize_points_with_size(points_xy, width, height, flip=False):
     return points_xy
 
 
-annot = pd.read_csv(annot_file)
+annot = pd.read_csv(annot_file)  # annot = [video, frame, label]
 vid_list = annot['video'].unique()
 for vid in vid_list:
     print(f'Process on: {vid}')
@@ -63,16 +63,15 @@ for vid in vid_list:
     cap = cv2.VideoCapture(os.path.join(video_folder, vid))
     frames_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                  int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+                int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
     # Bounding Boxs Labels.
     annotation_file = os.path.join(annotation_folder, vid.split('.')[0] + '.txt')
     annotation = None
     if os.path.exists(annotation_file):
         annotation = pd.read_csv(annotation_file, header=None,
-                                  names=['frame_idx', 'class', 'xmin', 'ymin', 'xmax', 'ymax'])
-        annotation = annotation.dropna().reset_index(drop=True)
-
+                                names=['frame_idx', 'class', 'xmin', 'ymin', 'xmax', 'ymax'])
+        annotation = annotation.dropna().reset_index(drop=True)  # Remove missing values.
         assert frames_count == len(annotation), 'frame count not equal! {} and {}'.format(frames_count, len(annotation))
 
     fps_time = 0
@@ -88,7 +87,7 @@ for vid in vid_list:
             else:
                 bb = detector.detect(frame)
                 if bb is None:
-                    bb = torch.tensor([[0, 0, 0, 0, 1.0000, 1.0000, 0.0000]])
+                    bb = torch.tensor([[0, 0, 0, 0, 1.0000, 1.0000, 0.0000]])  #  [top, left, bottom, right, bbox_score, class_score, class]
                     bb = bb[0, :4].numpy().astype(int)
                 else:
                     bb = bb[0, :4].numpy().astype(int)
@@ -98,15 +97,15 @@ for vid in vid_list:
             result = []
             if bb.any() != 0:
                 result = pose_estimator.predict(frame, torch.tensor(bb[None, ...]),
-                                                torch.tensor([[1.0]]))
+                                                torch.tensor([[1.0]]))  # image, bboxs, bboxs_scores
 
             if len(result) > 0:
                 pt_norm = normalize_points_with_size(result[0]['keypoints'].numpy().copy(),
-                                                     frame_size[0], frame_size[1])
-                pt_norm = np.concatenate((pt_norm, result[0]['kp_score']), axis=1)
+                                                    frame_size[0], frame_size[1])
+                pt_norm = np.concatenate((pt_norm, result[0]['kp_score']), axis=1)  # pt_norm = ['keypoints', 'kp_score']
 
-                #idx = result[0]['kp_score'] <= 0.05
-                #pt_norm[idx.squeeze()] = np.nan
+                # idx = result[0]['kp_score'] <= 0.05
+                # pt_norm[idx.squeeze()] = np.nan
                 row = [vid, i, *pt_norm.flatten().tolist(), cls_idx]
                 scr = result[0]['kp_score'].mean()
             else:
